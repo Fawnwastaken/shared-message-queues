@@ -1,0 +1,63 @@
+=================================================================
+Squeue.c , main_1.c , message.h
+=================================================================
+The directory contains  Squeue.c , main_1.c ,message.h both for static and dynamic allocation.
+
+
+Squeue.c is a device driver named "Squeue".It has four shared queues implemented with names as "bus_in_q", "bus_in_q1", "bus_in_q2" and "bus_in_q3". 
+It implements a circular buffer with ring of pointers of fixed size to hold the messages.
+It implements open, close , read ,write functions. 
+Message is a structure with message id, sender is, receiver id, accumulated and cuurent time and variable length character string.
+Semaphore is used to lock the shared queue which ensures that only one thread is acting on a queue at a time.
+
+
+main_1.c is user-space application to test the Squeue driver.
+Three sender threads create random messages simulatneously and write them to bus_in_q. If the operation fails, sender takes a nap and retries it after that. Bus daemon reads the message from bus_in_q and depending upon the receicer id, writes the message to respective queues and it is forwarded to the respective receivers.
+
+
+
+
+============
+Compilation 
+============
+1)  Compilation on host machine
+--------------------------------
+Compile main_1.c by:
+gcc -o main_1 main_1.c -lpthread
+To run:
+./main_1
+
+2) To compile on Galileo borad:
+KDIR:=/opt/clanton-full/1.4.2/sysroots/i586-poky-linux/usr/src/kernel
+#PWD:= $(shell pwd)
+
+CC = i586-poky-linux-gcc
+ARCH = x86
+CROSS_COMPILE = i586-poky-linux-
+SROOT=/opt/clanton-full/1.4.2/sysroots/i586-poky-linux/
+
+
+=============
+Driver instructions
+=============
+1) To create kernel object file:
+        use sudo if you are not the root user else skip the sudo.
+        a) bash~$ make
+    
+2) To insert the modules:
+	use sudo if you are not the root user else skip the sudo.
+	a) bash~$ [sudo] insmod Squeue.ko
+
+
+3) To run the user space application :
+	use sudo if you are not the root user else skip the sudo.
+	a) bash~$ [sudo] ./main_1
+
+
+4) To remove the modules :
+	use sudo if you are not the root user else skip the sudo.
+	a) bash~$ [sudo] rmmod Squeue
+
+	
+5) To return the directory to original/proper state use :
+	a) bash~$ make clean
